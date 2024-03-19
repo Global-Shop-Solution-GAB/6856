@@ -1,0 +1,222 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.F_ZoneMX..Create(BaseForm)
+Gui.F_ZoneMX..Caption("Shipping Zone Maintenance")
+Gui.F_ZoneMX..Size(315,339)
+Gui.F_ZoneMX..MinX(0)
+Gui.F_ZoneMX..MinY(0)
+Gui.F_ZoneMX..Position(0,0)
+Gui.F_ZoneMX..AlwaysOnTop(False)
+Gui.F_ZoneMX..FontName("Tahoma")
+Gui.F_ZoneMX..FontSize(8.25)
+Gui.F_ZoneMX..ControlBox(True)
+Gui.F_ZoneMX..MaxButton(True)
+Gui.F_ZoneMX..MinButton(True)
+Gui.F_ZoneMX..MousePointer(0)
+Gui.F_ZoneMX..Moveable(True)
+Gui.F_ZoneMX..Sizeable(True)
+Gui.F_ZoneMX..ShowInTaskBar(True)
+Gui.F_ZoneMX..TitleBar(True)
+Gui.F_ZoneMX..Event(UnLoad,F_ZoneMX_UnLoad)
+Gui.F_ZoneMX.txtZone.Create(TextBox,"",True,100,20,0,11,24,True,0,"Tahoma",8.25,,1)
+Gui.F_ZoneMX.lblZone.Create(Label,"Zone",True,28,13,0,11,7,True,0,"Tahoma",8.25,,0,0)
+Gui.F_ZoneMX.lblZone.BorderStyle(0)
+Gui.F_ZoneMX.lblZone.FontStyle(True,False,False,False,False)
+Gui.F_ZoneMX.cmdSave.Create(Button)
+Gui.F_ZoneMX.cmdSave.Enabled(True)
+Gui.F_ZoneMX.cmdSave.Visible(True)
+Gui.F_ZoneMX.cmdSave.Zorder(0)
+Gui.F_ZoneMX.cmdSave.Size(75,23)
+Gui.F_ZoneMX.cmdSave.Position(116,22)
+Gui.F_ZoneMX.cmdSave.Caption("Save")
+Gui.F_ZoneMX.cmdSave.FontName("Tahoma")
+Gui.F_ZoneMX.cmdSave.FontSize(8.25)
+Gui.F_ZoneMX.cmdSave.FontStyle(True,False,False,False,False)
+Gui.F_ZoneMX.cmdSave.Event(Click,cmdSave_Click)
+Gui.F_ZoneMX.cmdDel.Create(Button)
+Gui.F_ZoneMX.cmdDel.Enabled(True)
+Gui.F_ZoneMX.cmdDel.Visible(True)
+Gui.F_ZoneMX.cmdDel.Zorder(0)
+Gui.F_ZoneMX.cmdDel.Size(75,23)
+Gui.F_ZoneMX.cmdDel.Position(196,22)
+Gui.F_ZoneMX.cmdDel.Caption("Delete")
+Gui.F_ZoneMX.cmdDel.FontName("Tahoma")
+Gui.F_ZoneMX.cmdDel.FontSize(8.25)
+Gui.F_ZoneMX.cmdDel.FontStyle(True,False,False,False,False)
+Gui.F_ZoneMX.cmdDel.Event(Click,cmdDel_Click)
+Gui.F_ZoneMX.GsGcZones.Create(GsGridControl)
+Gui.F_ZoneMX.GsGcZones.Enabled(True)
+Gui.F_ZoneMX.GsGcZones.Visible(True)
+Gui.F_ZoneMX.GsGcZones.Zorder(0)
+Gui.F_ZoneMX.GsGcZones.Size(289,236)
+Gui.F_ZoneMX.GsGcZones.Position(14,64)
+Gui.F_ZoneMX.GsGcZones.Event(RowCellClick,GsGcZones_RowCellClick)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.Try
+Function.Intrinsic.UI.UsePixels ' Allows you to use Pixels instead of Twips throughout
+V.Local.sColWidth.Declare
+V.Local.sTitles.Declare
+V.Local.sRet.Declare
+'TJS, August 2022
+'Customer: Metal Zinc
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,14350)
+	F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-BTN-1,"Hide",0)
+	F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-BTN-1,"Lock",0)
+	F.Intrinsic.Variable.SetProperty("GAB-BTN-1","PA","TL")
+	F.Intrinsic.Variable.SetProperty("GAB-BTN-1","PL",153)
+	F.Intrinsic.Variable.SetProperty("GAB-BTN-1","PT",396)
+	F.Intrinsic.Variable.SetProperty("GAB-BTN-1","PH",20)
+	F.Intrinsic.Variable.SetProperty("GAB-BTN-1","PW",22)
+	V.Passed.000116.Set("Zone")
+	F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000038,"Lock",1)
+	V.Passed.GAB-BTN-1.Set("Zn")
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,14369)
+	F.ODBC.Connection!conts.OpenCompanyConnection
+	F.Data.DataTable.CreateFromSQL("dtZones","conts","Select ZONE from GCG_6856_SHP_ZONES")
+	F.Intrinsic.Control.If(V.DataTable.dtZones.RowCount,=,0)
+		F.Data.DataTable.CreateFromSQL("dtTemp","conts","Select distinct RTRIM(C_SORT_1) as ZONE from V_CUSTOMER_SALES where RTRIM(C_SORT_1) <> ''")
+		F.Intrinsic.Control.If(V.DataTable.dtTemp.RowCount,>,0)
+			F.Data.DataTable.SaveToDB("dtTemp","conts","GCG_6856_SHP_ZONES","ZONE",256,"")
+		F.Intrinsic.Control.EndIf
+		F.Data.DataTable.Close("dtTemp")
+	F.Intrinsic.Control.EndIf
+	F.Data.DataTable.Close("dtZones")
+	V.Local.sColWidth.Set("100")
+	V.Local.sTitles.Set("Zone")
+	F.Intrinsic.String.Split(V.Local.sColWidth,"*!*",V.Local.sColWidth)
+	F.Intrinsic.String.Split(V.Local.sTitles,"*!*",V.Local.sTitles)
+	F.Intrinsic.UI.Browser("Select Shipping Zone","conts","Select RTRIM(ZONE) as ZONE from GCG_6856_SHP_ZONES order by ZONE asc",V.Local.sTitles,V.Local.sColWidth,V.Local.sRet)
+	F.ODBC.Connection!conts.Close
+	
+	F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+		V.Passed.000038.Set(V.Local.sRet)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	F.ODBC.Connection!conts.OpenCompanyConnection
+	F.Data.DataTable.CreateFromSQL("dtZones","conts","Select ZONE from GCG_6856_SHP_ZONES")
+	F.Intrinsic.Control.If(V.DataTable.dtZones.RowCount,=,0)
+		F.Data.DataTable.CreateFromSQL("dtTemp","conts","Select distinct RTRIM(C_SORT_1) as ZONE from V_CUSTOMER_SALES where RTRIM(C_SORT_1) <> ''")
+		F.Intrinsic.Control.If(V.DataTable.dtTemp.RowCount,>,0)
+			F.Data.DataTable.SaveToDB("dtTemp","conts","GCG_6856_SHP_ZONES","ZONE",256,"")
+		F.Intrinsic.Control.EndIf
+		F.Data.DataTable.Close("dtTemp")
+	F.Intrinsic.Control.EndIf
+	F.Data.DataTable.Close("dtZones")
+	F.ODBC.Connection!conts.Close
+	F.Intrinsic.Control.CallSub(ZoneMX)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.ZoneMX.Start
+F.Intrinsic.Control.Try
+
+F.Intrinsic.Control.If(V.DataTable.dtZoneMX.Exists)
+	F.Data.DataTable.Close("dtZoneMX")
+F.Intrinsic.Control.EndIf
+
+F.ODBC.Connection!conts.OpenCompanyConnection
+F.Data.DataTable.CreateFromSQL("dtZoneMX","conts","Select RTRIM(ZONE) as ZONE from GCG_6856_SHP_ZONES order by ZONE asc",True)
+F.ODBC.Connection!conts.Close
+
+Gui.F_ZoneMX.GsGcZones.AddGridviewFromDatatable("gvZoneMX","dtZoneMX")
+
+Gui.F_ZoneMX.GsGcZones.SetGridviewProperty("gvZoneMX",V.Enum.GridViewPropertyNames!ReadOnly,True)
+Gui.F_ZoneMX.GsGcZones.SetGridviewProperty("gvZoneMX",V.Enum.GridViewPropertyNames!Editable,False)
+
+Gui.F_ZoneMX.GsGcZones.SetColumnProperty("gvZoneMX","ZONE",V.Enum.ColumnPropertyNames!HeaderFontBold,True)
+Gui.F_ZoneMX.GsGcZones.SetColumnProperty("gvZoneMX","ZONE",V.Enum.ColumnPropertyNames!HeaderBackColor,V.Color.Green)
+Gui.F_ZoneMX.GsGcZones.SetColumnProperty("gvZoneMX","ZONE",V.Enum.ColumnPropertyNames!HeaderForeColor,V.Color.White)
+Gui.F_ZoneMX.GsGcZones.SetColumnProperty("gvZoneMX","ZONE",V.Enum.ColumnPropertyNames!HeaderHAlignment,"Center")
+
+Gui.F_ZoneMX.GsGcZones.MainView("gvZoneMX")
+
+Gui.F_ZoneMX..Show
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.ZoneMX.End
+
+Program.Sub.GsGcZones_RowCellClick.Start
+F.Intrinsic.Control.Try
+
+Gui.F_ZoneMX.txtZone.Text(V.Args.CellValue)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.GsGcZones_RowCellClick.End
+
+Program.Sub.cmdSave_Click.Start
+F.Intrinsic.Control.Try
+V.Local.sSQL.Declare
+V.Local.sRet.Declare
+
+F.Intrinsic.String.Build("Select * from GCG_6856_SHP_ZONES where ZONE = '{0}'",V.Screen.F_ZoneMX!txtZone.Text.Trim,V.Local.sSQL)
+
+F.ODBC.Connection!conts.OpenCompanyConnection
+	F.ODBC.Connection!conts.ExecuteAndReturn(V.Local.sSQL,V.Local.sRet)
+	F.Intrinsic.Control.If(V.Local.sRet.Trim,=,"")
+		F.Intrinsic.String.Build("Insert into GCG_6856_SHP_ZONES (ZONE) values ('{0}')",V.Screen.F_ZoneMX!txtZone.Text.Trim,V.Local.sSQL)
+	F.Intrinsic.Control.Else
+		F.Intrinsic.String.Build("Update GCG_6856_SHP_ZONES set ZONE = '{0}' where ZONE = '{0}'",V.Screen.F_ZoneMX!txtZone.Text.Trim,V.Local.sSQL)
+	F.Intrinsic.Control.EndIf
+	
+	F.ODBC.Connection!conts.Execute(V.Local.sSQL)
+F.ODBC.Connection!conts.Close
+
+Gui.F_ZoneMX.txtZone.Text("")
+
+F.Intrinsic.Control.CallSub(ZoneMX)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdSave_Click.End
+
+Program.Sub.cmdDel_Click.Start
+F.Intrinsic.Control.Try
+V.Local.sSQL.Declare
+
+F.Intrinsic.String.Build("Delete GCG_6856_SHP_ZONES where ZONE = '{0}'",V.Screen.F_ZoneMX!txtZone.Text.Trim,V.Local.sSQL)
+
+F.ODBC.Connection!conts.OpenCompanyConnection
+	F.ODBC.Connection!conts.Execute(V.Local.sSQL)
+F.ODBC.Connection!conts.Close
+
+Gui.F_ZoneMX.txtZone.Text("")
+
+F.Intrinsic.Control.CallSub(ZoneMX)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdDel_Click.End
+
+Program.Sub.F_ZoneMX_UnLoad.Start
+F.Intrinsic.Control.End
+Program.Sub.F_ZoneMX_UnLoad.End
+
+Program.Sub.Error.Start
+V.Local.sError.Declare
+V.Local.iRet.Declare
+V.Local.sSep.Declare
+
+F.Intrinsic.String.Build("-------------------------------------------------------------------------------------",,V.Local.sSep)
+F.Intrinsic.String.Build("({5}-{6}){0}{7}{0}Project: {4}{0}{7}{0}Sub: {1}{0}Error: {2}, {3}", V.Ambient.NewLine, V.Args.SubRoutine, V.Args.eNumber, V.Args.eDescription,V.Caller.ScriptFile,V.Ambient.Date, V.Ambient.Time,V.Local.sSep,V.Local.sError)
+F.Intrinsic.UI.Msgbox(V.Local.sError,"Error",V.Local.iRet)
+Program.Sub.Error.End
+
+Program.Sub.Comments.Start
+${$5$}$20.1.8245.18323$}$1
+${$6$}$tsmith$}$20220812132458000$}$xqPbj9atw05FglvzeFsZ9cqXP+qvG6tXFYg45No0PZ5z4Z6+VxAbOnfR/koBhejbe3SbKNEKgRg=
+Program.Sub.Comments.End
