@@ -1,0 +1,241 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.F_Main..Create(BaseForm)
+Gui.F_Main..Caption("Ship Days Maintenance")
+Gui.F_Main..Size(1257,756)
+Gui.F_Main..MinX(0)
+Gui.F_Main..MinY(0)
+Gui.F_Main..Position(0,0)
+Gui.F_Main..AlwaysOnTop(False)
+Gui.F_Main..FontName("Tahoma")
+Gui.F_Main..FontSize(8.25)
+Gui.F_Main..ControlBox(True)
+Gui.F_Main..MaxButton(True)
+Gui.F_Main..MinButton(True)
+Gui.F_Main..MousePointer(0)
+Gui.F_Main..Moveable(True)
+Gui.F_Main..Sizeable(True)
+Gui.F_Main..ShowInTaskBar(True)
+Gui.F_Main..TitleBar(True)
+Gui.F_Main..Event(UnLoad,F_Main_UnLoad)
+Gui.F_Main.GsGcMain.Create(GsGridControl)
+Gui.F_Main.GsGcMain.Enabled(True)
+Gui.F_Main.GsGcMain.Visible(True)
+Gui.F_Main.GsGcMain.Zorder(0)
+Gui.F_Main.GsGcMain.Size(1230,642)
+Gui.F_Main.GsGcMain.Position(15,57)
+Gui.F_Main.GsGcMain.Anchor(15)
+Gui.F_Main.ddlDelZone.Create(DropDownList)
+Gui.F_Main.ddlDelZone.Enabled(True)
+Gui.F_Main.ddlDelZone.Visible(True)
+Gui.F_Main.ddlDelZone.Zorder(0)
+Gui.F_Main.ddlDelZone.Size(250,20)
+Gui.F_Main.ddlDelZone.Position(13,26)
+Gui.F_Main.ddlDelZone.FontName("Tahoma")
+Gui.F_Main.ddlDelZone.FontSize(8.1)
+Gui.F_Main.lblDelZone.Create(Label,"Delivery Zone",True,66,13,0,13,10,True,0,"Tahoma",8.1,,0,0)
+Gui.F_Main.lblDelZone.BorderStyle(0)
+Gui.F_Main.ddlCarrierCode.Create(DropDownList)
+Gui.F_Main.ddlCarrierCode.Enabled(True)
+Gui.F_Main.ddlCarrierCode.Visible(True)
+Gui.F_Main.ddlCarrierCode.Zorder(0)
+Gui.F_Main.ddlCarrierCode.Size(250,20)
+Gui.F_Main.ddlCarrierCode.Position(266,26)
+Gui.F_Main.ddlCarrierCode.FontName("Tahoma")
+Gui.F_Main.ddlCarrierCode.FontSize(8.1)
+Gui.F_Main.lblCarrierCode.Create(Label,"Carrier Code",True,61,13,0,266,10,True,0,"Tahoma",8.1,,0,0)
+Gui.F_Main.lblCarrierCode.BorderStyle(0)
+Gui.F_Main.cmdRefresh.Create(Button)
+Gui.F_Main.cmdRefresh.Enabled(True)
+Gui.F_Main.cmdRefresh.Visible(True)
+Gui.F_Main.cmdRefresh.Zorder(0)
+Gui.F_Main.cmdRefresh.Size(39,31)
+Gui.F_Main.cmdRefresh.Position(521,16)
+Gui.F_Main.cmdRefresh.Caption("REFRESH")
+Gui.F_Main.cmdRefresh.FontName("Tahoma")
+Gui.F_Main.cmdRefresh.FontSize(8.1)
+Gui.F_Main.cmdRefresh.Event(Click,cmdRefresh_Click)
+Gui.F_Main.txtSetDays.Create(TextBox,"",True,62,20,0,1139,26,True,0,"Tahoma",8.1,,1)
+Gui.F_Main.txtSetDays.NumericOnly(2)
+Gui.F_Main.txtSetDays.Anchor(9)
+Gui.F_Main.lblSetDays.Create(Label,"Set Days To:",True,62,13,0,1139,10,True,0,"Tahoma",8.1,,0,0)
+Gui.F_Main.lblSetDays.BorderStyle(0)
+Gui.F_Main.lblSetDays.Anchor(9)
+Gui.F_Main.cmdSetDays.Create(Button)
+Gui.F_Main.cmdSetDays.Enabled(True)
+Gui.F_Main.cmdSetDays.Visible(True)
+Gui.F_Main.cmdSetDays.Zorder(0)
+Gui.F_Main.cmdSetDays.Size(39,31)
+Gui.F_Main.cmdSetDays.Position(1206,16)
+Gui.F_Main.cmdSetDays.Caption("Set")
+Gui.F_Main.cmdSetDays.FontName("Tahoma")
+Gui.F_Main.cmdSetDays.FontSize(8.1)
+Gui.F_Main.cmdSetDays.Event(Click,cmdSetDays_Click)
+Gui.F_Main.cmdSetDays.Anchor(9)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.Try
+Function.Intrinsic.UI.UsePixels ' Allows you to use Pixels instead of Twips throughout
+'TJS, August 2022
+'Customer: Metal Zinc
+'The customer wants to use the Ship Date and Delivery Date on the order lines screen and let the system automatically calculate the ship date using the company option Use Line Item Promise Date as Ship Date
+'Completed as a part of a Development as a Service project.
+
+F.ODBC.Connection!conts.OpenCompanyConnection
+
+F.Data.Dictionary.CreateFromSQL("dictDelZone","conts","Select C_SORT_1,C_SORT_1 from V_CUSTOMER_SALES where RTRIM(C_SORT_1) <> '' order by C_SORT_1 asc")
+Gui.F_Main.ddlDelZone.AddItem("",0)
+Gui.F_Main.ddlDelZone.AddItems("Dictionary","dictDelZone")
+F.Data.Dictionary.Close("dictDelZone")
+
+F.Data.Dictionary.CreateFromSQL("dictCarrierCode","conts","Select CARRIER_CD,CARRIER_CD from V_OE_CARRIER order by CARRIER_CD asc")
+Gui.F_Main.ddlCarrierCode.AddItem("",0)
+Gui.F_Main.ddlCarrierCode.AddItems("Dictionary","dictCarrierCode")
+F.Data.Dictionary.Close("dictCarrierCode")
+
+F.ODBC.Connection!conts.Close
+
+F.Intrinsic.Control.CallSub(EmptyData)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.EmptyData.Start
+F.Intrinsic.Control.Try
+
+F.Data.DataTable.Create("dtShpDays",True)
+F.Data.DataTable.AddColumn("dtShpDays","CUST_NO","String")
+F.Data.DataTable.AddColumn("dtShpDays","NAME_CUSTOMER","String")
+F.Data.DataTable.AddColumn("dtShpDays","CARRIER_CD","String")
+F.Data.DataTable.AddColumn("dtShpDays","DAYS","Float")
+
+F.Intrinsic.Control.CallSub(FormatGrid)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.EmptyData.End
+
+Program.Sub.FormatGrid.Start
+F.Intrinsic.Control.Try
+
+Gui.F_Main.GsGcMain.AddGridviewFromDatatable("gvShipDays","dtShpDays")
+
+'Header Font Bold
+F.Intrinsic.Control.CallSub(BulkFormatting,"Form","F_Main","GV","gvShipDays","GSGC","GsGcMain","Cols",V.DataTable.dtShpDays.FieldNames,"Vals","True","Prop",V.Enum.ColumnPropertyNames!HeaderFontBold)
+
+'Captions
+F.Intrinsic.Control.CallSub(BulkFormatting,"Form","F_Main","GV","gvShipDays","GSGC","GsGcMain","Cols",V.DataTable.dtShpDays.FieldNames,"Vals","Cust ID*!*Cust Name*!*Carrier Code*!*Days","Prop",V.Enum.ColumnPropertyNames!Caption)
+
+F.Intrinsic.Control.CallSub(BulkFormatting,"Form","F_Main","GV","gvShipDays","GSGC","GsGcMain","Cols","DAYS","Vals","CENTER","Prop",V.Enum.ColumnPropertyNames!CellHAlignment)
+
+Gui.F_Main.GsGcMain.MainView("gvShipDays")
+
+Gui.F_Main..Show
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.FormatGrid.End
+
+Program.Sub.BulkFormatting.Start
+F.Intrinsic.Control.Try
+V.Local.sCol.Declare
+V.Local.sVal.Declare
+V.Local.iCnt.Declare
+V.Local.iVI.Declare
+
+F.Intrinsic.String.Split(V.Args.Cols,"*!*",V.Local.sCol)
+F.Intrinsic.String.Split(V.Args.Vals,"*!*",V.Local.sVal)
+
+V.Local.iVI.Set(-1)
+F.Intrinsic.Control.For(V.Local.iCnt,V.Local.sCol.UBound)
+	F.Intrinsic.Control.If(V.Local.sCol.UBound,=,V.Local.sVal.UBound)
+		Gui.[V.Args.FORM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sCol(V.Local.iCnt),V.Args.Prop,V.Local.sVal(V.Local.iCnt))
+	F.Intrinsic.Control.ElseIf(V.Args.Prop,=,V.Enum.ColumnPropertyNames!VisibleIndex)
+		Gui.[V.Args.FORM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sCol(V.Local.iCnt),V.Args.Prop,V.Local.iVI.++)
+	F.Intrinsic.Control.Else
+		Gui.[V.Args.FORM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sCol(V.Local.iCnt),V.Args.Prop,V.Local.sVal)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Next(V.Local.iCnt)
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.BulkFormatting.End
+
+Program.Sub.cmdRefresh_Click.Start
+F.Intrinsic.Control.Try
+V.Local.sSQL.Declare
+
+F.Intrinsic.String.Build("Select A.CUSTOMER as CUST_NO,B.NAME_CUSTOMER,'{1}' as CARRIER_CD,C.DAYS from V_CUSTOMER_SALES A Left Join V_CUSTOMER_MASTER B on B.CUSTOMER = A.CUSTOMER left Join V_SHIP_DAYS C on C.CUST_NO = A.CUSTOMER AND C.CARRIER_CD = '{1}' where A.C_SORT_1 = '{0}'",V.Screen.F_Main!ddlDelZone.Value.Trim,V.Screen.F_Main!ddlCarrierCode.Value.Trim,V.Local.sSQL)
+
+F.ODBC.Connection!conts.OpenCompanyConnection
+F.Data.DataTable.CreateFromSQL("dtShpDaysTemp","conts",V.Local.sSQL)
+F.ODBC.Connection!conts.Close
+
+F.Data.DataTable.DeleteRow("dtShpDays",-1)
+
+F.Data.DataTable.Merge("dtShpDaysTemp","dtShpDays",True,2)
+
+F.Data.DataTable.Close("dtShpDaysTemp")
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdRefresh_Click.End
+
+Program.Sub.cmdSetDays_Click.Start
+F.Intrinsic.Control.Try
+V.Local.iDays.Declare
+
+V.Local.iDays.Set(V.Screen.F_Main!txtSetDays.Text.Long)
+
+F.Intrinsic.Control.If(V.DataTable.dtShpDays.RowCount,<>,0)
+	F.Data.DataTable.SetValue("dtShpDays",-1,"DAYS",V.Local.iDays)
+F.Intrinsic.Control.EndIf
+
+F.Data.DataView.Create("dtShpDays","dvShpDays",22)
+F.Data.DataView.ToDataTable("dtShpDays","dvShpDays","dtSave")
+F.Data.DataView.Close("dtShpDays","dvShpDays")
+
+F.Data.DataTable.RemoveColumn("dtSave","NAME_CUSTOMER")
+F.ODBC.Connection!conts.OpenCompanyConnection
+F.Data.DataTable.SaveToDB("dtSave","conts","SHIP_DAYS","CUST_NO*!*CARRIER_CD",256,"")
+F.ODBC.Connection!conts.close
+F.Data.DataTable.Close("dtSave")
+
+F.Data.DataTable.DeleteRow("dtShpDays",-1)
+
+Gui.F_Main.ddlCarrierCode.Text("")
+Gui.F_Main.ddlDelZone.Text("")
+Gui.F_Main.txtSetDays.Text("")
+
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(Error,"SubRoutine",V.Ambient.CurrentSubroutine,"eNumber",V.Ambient.ErrorNumber,"eDescription",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdSetDays_Click.End
+
+Program.Sub.Error.Start
+V.Local.sError.Declare
+V.Local.iRet.Declare
+V.Local.sSep.Declare
+
+F.Intrinsic.String.Build("-------------------------------------------------------------------------------------",,V.Local.sSep)
+F.Intrinsic.String.Build("({5}-{6}){0}{7}{0}Project: {4}{0}{7}{0}Sub: {1}{0}Error: {2}, {3}", V.Ambient.NewLine, V.Args.SubRoutine, V.Args.eNumber, V.Args.eDescription,V.Caller.ScriptFile,V.Ambient.Date, V.Ambient.Time,V.Local.sSep,V.Local.sError)
+F.Intrinsic.UI.Msgbox(V.Local.sError,"Error",V.Local.iRet)
+Program.Sub.Error.End
+
+Program.Sub.F_Main_UnLoad.Start
+F.Intrinsic.Control.End
+Program.Sub.F_Main_UnLoad.End
+
+Program.Sub.Comments.Start
+${$5$}$20.1.8245.18323$}$1
+${$6$}$tsmith$}$20220804101316255$}$xqPbj9atw05FglvzeFsZ9cqXP+qvG6tXyR0FxvgOraiRwZ5cVva/DeroBAgIxjqrmyOxkBLNVgg=
+Program.Sub.Comments.End
